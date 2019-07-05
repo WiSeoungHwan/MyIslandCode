@@ -29,12 +29,7 @@ public class Player : MonoBehaviour
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
                     var pos = hitInfo.transform.position;
-                    if (ground.posArr.Contains(new Vector3(pos.x, 0, pos.z)))
-                    {
-                        transform.position = new Vector3(pos.x, 0, pos.z);
-						checkIsPracticableArea();
-                    }
-
+                    
                 }
             }
         }
@@ -44,14 +39,7 @@ public class Player : MonoBehaviour
     {
         foreach (var i in practicableAreas)
         {
-            if (ground.posArr.Contains(new Vector3(i.transform.position.x, 0, i.transform.position.z)))
-            {
-                i.SetActive(true);
-            }
-            else
-            {
-                i.SetActive(false);
-            }
+            
         }
     }
 

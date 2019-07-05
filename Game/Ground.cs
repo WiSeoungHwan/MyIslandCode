@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Ground : MonoBehaviour {
 	// - Properties
-	public List<Vector3> posArr = new List<Vector3>();
 	public List<Tile> tileArr = new List<Tile>();
 	// Use this for initialization
 	void Awake() {
