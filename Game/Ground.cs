@@ -7,10 +7,10 @@ public class Ground : MonoBehaviour {
 	public List<Tile> tileArr = new List<Tile>();
 	// Use this for initialization
 	void Awake() {
-		// setTransFormArr();
+		setTransFormArr();
 	}
 	void Start(){
-		setTransFormArr();
+		// setTransFormArr();
 	}
 
 	void setTransFormArr(){

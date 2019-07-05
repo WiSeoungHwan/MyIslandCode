@@ -29,7 +29,6 @@ public class Player : MonoBehaviour
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
                     var pos = hitInfo.transform.position;
-                    
                 }
             }
         }
@@ -39,7 +38,17 @@ public class Player : MonoBehaviour
     {
         foreach (var i in practicableAreas)
         {
-            
+            foreach (Tile tile in ground.tileArr){
+                var iVec = i.transform.position;
+                var tileVec = tile.transform.position;
+                Vector3 iVector = new Vector3(iVec.x,0,iVec.z);
+                Vector3 tileVector = new Vector3(tileVec.x,0,tileVec.z);
+                if (iVector == tileVector){
+                    i.SetActive(true);
+                }else{
+                    i.SetActive(false);
+                }
+            }
         }
     }
 
