@@ -26,33 +26,43 @@ public class Player : MonoBehaviour
             // differanciate
             if (Physics.Raycast(ray, out hitInfo))
             {
+                Debug.Log(hitInfo.transform.tag);
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
                     var pos = hitInfo.transform.position;
+                    gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
+                    checkIsPracticableArea();
                 }
             }
         }
     }
 
-    private void checkIsPracticableArea()
-    {
-        foreach (var i in practicableAreas)
-        {
+    private void checkIsPracticableArea(){
+        foreach (GameObject i in practicableAreas){
+            i.SetActive(false);
             foreach (Tile tile in ground.tileArr){
                 var iVec = i.transform.position;
                 var tileVec = tile.transform.position;
                 Vector3 iVector = new Vector3(iVec.x,0,iVec.z);
                 Vector3 tileVector = new Vector3(tileVec.x,0,tileVec.z);
-                if (iVector == tileVector){
-                    i.SetActive(true);
-                }else{
-                    i.SetActive(false);
+                
+                if (iVector == tileVector) {
+                    switch (tile.state) {
+                        case TileState.normal:
+                            i.SetActive(true);
+                            break;
+                        case TileState.material:
+                            
+                            break;
+                        case TileState.building:
+                            break;
+                    }
                 }
             }
         }
     }
 
-    
+
     void Update()
     {
         move();
