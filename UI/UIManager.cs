@@ -28,4 +28,8 @@ public class UIManager : MonoBehaviour {
 		buildPanel.SetActive(false);
 		buildOpen.SetActive(true);
 	}
+
+	public void homeButtonClick(){
+		Player.Instance.isBuildingMode = Player.Instance.isBuildingMode ? false : true;
+	}
 }

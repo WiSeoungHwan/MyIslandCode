@@ -17,7 +17,7 @@ public class Ground : MonoBehaviour {
 		for(int i = 0; i < 5; i++){
 			for(int j = 0; j < 5; j++){
 				if (Resources.Load("Prefab/Tile/tile") == null) {Debug.Log("Err: tile is null");return;}
-				Vector3 pos = new Vector3(i,gameObject.transform.position.y,j);
+				Vector3 pos = new Vector3(i + transform.position.x,gameObject.transform.position.y,j);
 				GameObject tileObject = Instantiate(Resources.Load("Prefab/Tile/tile"),pos,Quaternion.identity) as GameObject;
 				var tile = tileObject.GetComponent<Tile>();
 				if (i == 0 && j == 0){

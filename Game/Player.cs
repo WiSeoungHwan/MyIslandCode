@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : SingletonMonoBehaviour<Player>
 {
+    public delegate void PlayerDelegate();
+
     [SerializeField]
     Ground ground;
     [SerializeField]
     GameObject[] practicableAreas;
-    // Use this for initialization
-    void Start()
-    {
-		checkIsPracticableArea();
+
+    public bool isBuildingMode;
+    protected override void OnStart(){
+        checkIsPracticableArea();
     }
 
-    private void move()
-    {
+    private void move(){
         // click the ground 
         if (Input.GetMouseButtonDown(0))
         {
@@ -23,10 +24,8 @@ public class Player : MonoBehaviour
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            // differanciate
             if (Physics.Raycast(ray, out hitInfo))
             {
-                Debug.Log(hitInfo.transform.tag);
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
                     var pos = hitInfo.transform.position;
@@ -60,6 +59,11 @@ public class Player : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void buildingTower(){
+        if (!isBuildingMode){return;}
+        
     }
 
 

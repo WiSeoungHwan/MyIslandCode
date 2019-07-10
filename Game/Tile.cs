@@ -10,7 +10,6 @@ public enum TileState{
 public class Tile: MonoBehaviour{
 	[SerializeField]
 	public TileState state = TileState.normal;
-
 	void Start(){
 		setTilePrefab();
 	}
@@ -36,6 +35,13 @@ public class Tile: MonoBehaviour{
 		GameObject prefabObject = Instantiate(prefabArr[Random.Range(0,prefabArr.Length)],gameObject.transform.position,Quaternion.identity) as GameObject;
 		prefabObject.transform.parent = gameObject.transform;
 		gameObject.tag = forderName;
+		if (forderName == "Normal"){
+			gameObject.AddComponent<BoxCollider>();
+		}else{
+			CapsuleCollider capsulecolider = gameObject.AddComponent<CapsuleCollider>();
+			capsulecolider.height = 2;
+			capsulecolider.center = new Vector3(0,0.5f,0);
+		}
 		Debug.Log(prefabObject.tag);
 		prefabObject.SetActive(true);
 	}
