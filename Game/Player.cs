@@ -12,8 +12,11 @@ public class Player : SingletonMonoBehaviour<Player>
     GameObject[] practicableAreas;
 
     public bool isBuildingMode;
+    PlayerDelegate playerDel;
     protected override void OnStart(){
         checkIsPracticableArea();
+        playerDel = new PlayerDelegate(checkIsPracticableArea);
+        
     }
 
     private void move(){
@@ -26,6 +29,7 @@ public class Player : SingletonMonoBehaviour<Player>
 
             if (Physics.Raycast(ray, out hitInfo))
             {
+                if (isBuildingMode){return;}
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
                     var pos = hitInfo.transform.position;
@@ -49,6 +53,9 @@ public class Player : SingletonMonoBehaviour<Player>
                     switch (tile.state) {
                         case TileState.normal:
                             i.SetActive(true);
+                            if (isBuildingMode){
+                                buildingTower(tile);
+                            }
                             break;
                         case TileState.material:
                             
@@ -61,8 +68,14 @@ public class Player : SingletonMonoBehaviour<Player>
         }
     }
 
-    private void buildingTower(){
-        if (!isBuildingMode){return;}
+    private void buildingTower(Tile tile){
+        isBuildingMode = isBuildingMode ? false : true ;
+        if (Resources.Load("Resources/Prefab/Tile/Building/building_1") == null){Debug.Log("building_1 is null"); return;}
+        Vector3 pos = new Vector3(tile.transform.position.x,0.5f,tile.transform.position.z);
+        GameObject tower = Instantiate(Resources.Load("Resources/Prefab/Tile/Building/building_1"),pos, Quaternion.identity) as GameObject;
+        tower.transform.SetParent(tile.transform);
+        tower.tag = "Building";
+        tower.SetActive(true);
         
     }
 
