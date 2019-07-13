@@ -30,6 +30,7 @@ public class UIManager : MonoBehaviour {
 	}
 
 	public void homeButtonClick(){
-		Player.Instance.isBuildingMode = Player.Instance.isBuildingMode ? false : true;
+		Player.Instance.isBuildingMode = true;
+		Player.Instance.playerDel();
 	}
 }

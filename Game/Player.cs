@@ -11,12 +11,13 @@ public class Player : SingletonMonoBehaviour<Player>
     [SerializeField]
     GameObject[] practicableAreas;
 
-    public bool isBuildingMode;
-    PlayerDelegate playerDel;
+    public bool isBuildingMode = false;
+    public PlayerDelegate playerDel;
+
+    List<GameObject> sampleBuildings = new List<GameObject>(); 
     protected override void OnStart(){
         checkIsPracticableArea();
         playerDel = new PlayerDelegate(checkIsPracticableArea);
-        
     }
 
     private void move(){
@@ -29,15 +30,53 @@ public class Player : SingletonMonoBehaviour<Player>
 
             if (Physics.Raycast(ray, out hitInfo))
             {
-                if (isBuildingMode){return;}
+                
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
                     var pos = hitInfo.transform.position;
                     gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
                     checkIsPracticableArea();
+                    Debug.Log("Suc");
+                }
+                if (hitInfo.transform.tag == "SampleBuilding"){
+                    Debug.Log(hitInfo.transform.position);
+                    sampleBuildingBuild();
                 }
             }
         }
+    }
+    private void sampleBuildingBuild(){
+        foreach (GameObject i in practicableAreas){
+            i.SetActive(false);
+            foreach (Tile tile in ground.tileArr){
+                var iVec = i.transform.position;
+                var tileVec = tile.transform.position;
+                Vector3 iVector = new Vector3(iVec.x,0,iVec.z);
+                Vector3 tileVector = new Vector3(tileVec.x,0,tileVec.z);
+                
+                if (iVector == tileVector) {
+                    switch (tile.state) {
+                        case TileState.normal:
+                            i.SetActive(false);
+                            
+                            buildingTower(tile, false);
+                            foreach(GameObject sample in sampleBuildings){
+                                sample.SetActive(false);
+                            }
+                            isBuildingMode = false;
+                            checkIsPracticableArea();                        
+                            return;
+                            break;
+                        case TileState.material:
+                            
+                            break;
+                        case TileState.building:
+                            break;
+                    }
+                }
+            }
+        }
+        
     }
 
     private void checkIsPracticableArea(){
@@ -54,7 +93,9 @@ public class Player : SingletonMonoBehaviour<Player>
                         case TileState.normal:
                             i.SetActive(true);
                             if (isBuildingMode){
-                                buildingTower(tile);
+                                buildingTower(tile, true);
+                            }else{
+                                
                             }
                             break;
                         case TileState.material:
@@ -66,17 +107,20 @@ public class Player : SingletonMonoBehaviour<Player>
                 }
             }
         }
+        isBuildingMode = false;
     }
 
-    private void buildingTower(Tile tile){
-        isBuildingMode = isBuildingMode ? false : true ;
-        if (Resources.Load("Resources/Prefab/Tile/Building/building_1") == null){Debug.Log("building_1 is null"); return;}
-        Vector3 pos = new Vector3(tile.transform.position.x,0.5f,tile.transform.position.z);
-        GameObject tower = Instantiate(Resources.Load("Resources/Prefab/Tile/Building/building_1"),pos, Quaternion.identity) as GameObject;
-        tower.transform.SetParent(tile.transform);
-        tower.tag = "Building";
-        tower.SetActive(true);
+    private void buildingTower(Tile tile, bool isSample){
+        string buildingName = isSample ? "sampleBuilding" : "building_1";
         
+        if (Resources.Load("Prefab/Tile/Building/"+buildingName) == null){Debug.Log(buildingName+" is null"); return;}
+        Vector3 pos = new Vector3(tile.transform.position.x,0.0f,tile.transform.position.z);
+        GameObject tower = Instantiate(Resources.Load("Prefab/Tile/Building/"+buildingName),pos, Quaternion.identity) as GameObject;
+        tower.transform.SetParent(tile.transform);
+        tower.tag = isSample ? "SampleBuilding" : "Building";
+        tile.state = isSample ? TileState.normal : TileState.building;
+        if (isSample) {sampleBuildings.Add(tower);}
+        tower.SetActive(true);
     }
 
 
