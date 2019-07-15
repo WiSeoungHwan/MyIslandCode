@@ -12,9 +12,10 @@ public class Player : SingletonMonoBehaviour<Player>
     GameObject[] practicableAreas;
 
     public bool isBuildingMode = false;
+    public bool isBuildingSample = false;
     public PlayerDelegate playerDel;
 
-    List<GameObject> sampleBuildings = new List<GameObject>(); 
+    public List<GameObject> sampleBuildings = new List<GameObject>(); 
     protected override void OnStart(){
         checkIsPracticableArea();
         playerDel = new PlayerDelegate(checkIsPracticableArea);
@@ -30,53 +31,26 @@ public class Player : SingletonMonoBehaviour<Player>
 
             if (Physics.Raycast(ray, out hitInfo))
             {
-                
+                Debug.Log(hitInfo.transform.name);
                 if (hitInfo.transform.tag == "PracticableArea")
                 {
+                    Debug.Log("Suc");
                     var pos = hitInfo.transform.position;
                     gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
                     checkIsPracticableArea();
-                    Debug.Log("Suc");
                 }
                 if (hitInfo.transform.tag == "SampleBuilding"){
-                    Debug.Log(hitInfo.transform.position);
-                    sampleBuildingBuild();
-                }
-            }
-        }
-    }
-    private void sampleBuildingBuild(){
-        foreach (GameObject i in practicableAreas){
-            i.SetActive(false);
-            foreach (Tile tile in ground.tileArr){
-                var iVec = i.transform.position;
-                var tileVec = tile.transform.position;
-                Vector3 iVector = new Vector3(iVec.x,0,iVec.z);
-                Vector3 tileVector = new Vector3(tileVec.x,0,tileVec.z);
-                
-                if (iVector == tileVector) {
-                    switch (tile.state) {
-                        case TileState.normal:
-                            i.SetActive(false);
-                            
-                            buildingTower(tile, false);
-                            foreach(GameObject sample in sampleBuildings){
-                                sample.SetActive(false);
-                            }
-                            isBuildingMode = false;
-                            checkIsPracticableArea();                        
-                            return;
-                            break;
-                        case TileState.material:
-                            
-                            break;
-                        case TileState.building:
-                            break;
+                    var tile = hitInfo.transform.parent.GetComponent<Tile>();
+                    buildingTower(tile, false);
+                    foreach(GameObject sample in sampleBuildings){
+                        sample.SetActive(false);
                     }
+                    isBuildingMode = false;
+                    isBuildingSample = false;
+                    checkIsPracticableArea();
                 }
             }
         }
-        
     }
 
     private void checkIsPracticableArea(){

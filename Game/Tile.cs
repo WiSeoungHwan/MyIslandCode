@@ -10,6 +10,8 @@ public enum TileState{
 public class Tile: MonoBehaviour{
 	[SerializeField]
 	public TileState state = TileState.normal;
+
+	public int index;
 	void Start(){
 		setTilePrefab();
 	}

@@ -27,10 +27,18 @@ public class UIManager : MonoBehaviour {
 	public void buildCloseButtonClick(){
 		buildPanel.SetActive(false);
 		buildOpen.SetActive(true);
+		foreach (var i in Player.Instance.sampleBuildings){
+			i.SetActive(false);
+		}
+		Player.Instance.isBuildingMode = false;
+		Player.Instance.isBuildingSample = false; 
 	}
 
 	public void homeButtonClick(){
+		if (Player.Instance.isBuildingSample) {return;}
 		Player.Instance.isBuildingMode = true;
 		Player.Instance.playerDel();
+		Player.Instance.isBuildingSample = true; 
+		
 	}
 }
