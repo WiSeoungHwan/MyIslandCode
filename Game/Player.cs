@@ -15,13 +15,16 @@ public class Player : SingletonMonoBehaviour<Player>
     public bool isBuildingSample = false;
     public PlayerDelegate playerDel;
 
+    public int playerIndex = 0;
+
     public List<GameObject> sampleBuildings = new List<GameObject>(); 
     protected override void OnStart(){
-        checkIsPracticableArea();
-        playerDel = new PlayerDelegate(checkIsPracticableArea);
+        
+        checkAround();
+        playerDel = new PlayerDelegate(checkAround);
     }
 
-    private void move(){
+    private void playerAction(){
         
         // click the ground 
         if (Input.GetMouseButtonDown(0))
@@ -33,14 +36,8 @@ public class Player : SingletonMonoBehaviour<Player>
 
             if (Physics.Raycast(ray, out hitInfo))
             {
-                Debug.Log(hitInfo.transform.name);
-                if (hitInfo.transform.tag == "PracticableArea")
-                {
-                    Debug.Log("Suc");
-                    var pos = hitInfo.transform.position;
-                    gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
-                    checkIsPracticableArea();
-                }
+                move(hitInfo);
+
                 if (hitInfo.transform.tag == "SampleBuilding"){
                     var tile = hitInfo.transform.parent.GetComponent<Tile>();
                     buildingTower(tile, false);
@@ -49,8 +46,80 @@ public class Player : SingletonMonoBehaviour<Player>
                     }
                     isBuildingMode = false;
                     isBuildingSample = false;
-                    checkIsPracticableArea();
+                    checkAround();
                 }
+            }
+        }
+    }
+
+    private void move(RaycastHit hitInfo){
+        switch (hitInfo.transform.name){
+                    case "X1":
+                        playerIndex += 5; // down
+                        break;
+                    case "X-1":
+                        playerIndex -= 5; // up 
+                        break;
+                    case "Z1":
+                        playerIndex += 1; // left
+                        break;
+                    case "Z-1":
+                        playerIndex -= 1; // right
+                        break;
+                }
+                if (hitInfo.transform.tag == "PracticableArea"){
+                    var pos = hitInfo.transform.position;
+                    gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
+                    checkAround();
+                }
+    }
+
+    private void checkAround(){
+        foreach (GameObject i in practicableAreas){
+            int aroundIndex = 0;
+            switch (i.transform.name){
+                    case "X1":
+                        aroundIndex = playerIndex + 5;
+                        break;
+                    case "X-1":
+                        aroundIndex = playerIndex - 5;
+                        break;
+                    case "Z1":
+                        if (playerIndex == 4 || (playerIndex - 4) % 5 == 0){ // right side
+                            i.SetActive(false);
+                            continue;
+                        }
+                        aroundIndex = playerIndex + 1;
+                        break;
+                    case "Z-1":
+                        if (playerIndex == 0 || playerIndex % 5 == 0){ // left side
+                            i.SetActive(false);
+                            continue;
+                        }
+                        aroundIndex = playerIndex - 1;
+                        break;
+                    default:
+                        Debug.Log("Tile not found");
+                        break;
+            }
+            if (aroundIndex < 0 || aroundIndex > 24){  // start tile or end tile
+                i.SetActive(false);
+                continue;
+            }
+            Tile tile = ground.tileArr[aroundIndex];
+            switch (tile.state){
+                case TileState.normal:
+                    i.SetActive(true);
+                    if (isBuildingMode){
+                        buildingTower(tile, true);
+                    }
+                    break;
+                case TileState.material:
+                    i.SetActive(false);
+                    break;
+                case TileState.building:
+                    i.SetActive(false);
+                    break;
             }
         }
     }
@@ -102,6 +171,6 @@ public class Player : SingletonMonoBehaviour<Player>
 
     void Update()
     {
-        move();
+        playerAction();
     }
 }

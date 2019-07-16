@@ -38,7 +38,7 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 	public void timeCount(){
 		if (timerCount == 1){
 			Debug.Log("Count finish");
-			timerText.text = "10";
+			timerText.text = timerCount.ToString();
 			TimersManager.ClearTimer(timeCount);
 			GameManager.Instance.gameTrigger = false;
 			GameManager.Instance.turn++;
@@ -71,8 +71,11 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 		foreach (var i in Player.Instance.sampleBuildings){
 			i.SetActive(false);
 		}
-		Player.Instance.isBuildingMode = false;
-		Player.Instance.isBuildingSample = false; 
+		if (GameManager.Instance.gameTrigger){
+			Player.Instance.isBuildingMode = false;
+			Player.Instance.isBuildingSample = false; 
+		}
+		
 	}
 
 	public void homeButtonClick(){

@@ -25,8 +25,10 @@ public class Ground : MonoBehaviour {
 				if (i == 0 && j == 0){
 					tile.state = TileState.normal;
 				}else {
-				// .normal, .material 
+					// .normal, .material 
 					tile.state = (TileState)Random.Range(0,2);
+					// test
+					// tile.state = (TileState)0;
 				}
 				tileObject.transform.parent = gameObject.transform;
 				tileObject.SetActive(true);

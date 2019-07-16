@@ -5,10 +5,11 @@ using Timers;
 
 
 public class GameManager : SingletonMonoBehaviour<GameManager> {
-
+	[SerializeField]
+	Ground myGround;
 	public int turn = 0;
 	public bool gameTrigger = false;
-	public int timerCount ;
+	public int timerCount;
 
 	// Use this for initialization
 	protected override void OnStart(){
