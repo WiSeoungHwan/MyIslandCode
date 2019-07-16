@@ -22,9 +22,11 @@ public class Player : SingletonMonoBehaviour<Player>
     }
 
     private void move(){
+        
         // click the ground 
         if (Input.GetMouseButtonDown(0))
         {
+            if (!GameManager.Instance.gameTrigger){Debug.Log("gameTrigger is false");return;}
             // get hitInfo
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
