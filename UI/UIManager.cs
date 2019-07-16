@@ -27,7 +27,7 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 	[SerializeField]
 	AiryUIAnimationManager airyUIAnimationManager;
 	public int timerCount;
-	int moveCount = 8;
+
 	// MARK: - Mono LifeCycle
 	protected override void OnStart(){
 		materialText.text = "0";
@@ -36,9 +36,9 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 
 	// MARK: - Timer
 	public void timeCount(){
-		if (timerCount == 1){
+		if (timerCount == 0){
 			Debug.Log("Count finish");
-			timerText.text = timerCount.ToString();
+			timerText.text = GameManager.Instance.timerCount.ToString();
 			TimersManager.ClearTimer(timeCount);
 			GameManager.Instance.gameTrigger = false;
 			GameManager.Instance.turn++;
@@ -49,6 +49,13 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 		timerCount--;
 		timerText.text = timerCount.ToString();
 	}
+	public void moveCountChange(int count){
+		moveCountText.text = count.ToString();
+	}
+	public void materialCountChange(int count){
+		materialText.text = count.ToString();
+	}
+	
 
 	// MARK: - Start Scene
 	public void startButtonClick(){
@@ -71,14 +78,13 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 		foreach (var i in Player.Instance.sampleBuildings){
 			i.SetActive(false);
 		}
-		if (GameManager.Instance.gameTrigger){
-			Player.Instance.isBuildingMode = false;
-			Player.Instance.isBuildingSample = false; 
-		}
-		
+		Player.Instance.isBuildingMode = false;
+		Player.Instance.isBuildingSample = false; 
+		Player.Instance.playerDel();
 	}
 
 	public void homeButtonClick(){
+		if (!GameManager.Instance.gameTrigger) {return;}
 		if (Player.Instance.isBuildingSample) {return;}
 		Player.Instance.isBuildingMode = true;
 		Player.Instance.playerDel();

@@ -10,6 +10,8 @@ public class Player : SingletonMonoBehaviour<Player>
     Ground ground;
     [SerializeField]
     GameObject[] practicableAreas;
+    [SerializeField]
+    Material normalMaterial;
 
     public bool isBuildingMode = false;
     public bool isBuildingSample = false;
@@ -18,6 +20,7 @@ public class Player : SingletonMonoBehaviour<Player>
     public int playerIndex = 0;
 
     public List<GameObject> sampleBuildings = new List<GameObject>(); 
+    int materialCount = 0;
     protected override void OnStart(){
         
         checkAround();
@@ -37,22 +40,49 @@ public class Player : SingletonMonoBehaviour<Player>
             if (Physics.Raycast(ray, out hitInfo))
             {
                 move(hitInfo);
-
+                if (!isBuildingMode){
+                    collect(hitInfo);
+                }
+                if(GameManager.Instance.activeCount == 0){return;}
                 if (hitInfo.transform.tag == "SampleBuilding"){
-                    var tile = hitInfo.transform.parent.GetComponent<Tile>();
+                    Tile tile = hitInfo.transform.parent.GetComponent<Tile>();
+                    if (materialCount < 2){
+                        return;
+                    }
+                    materialCount -= 2;
+                    UIManager.Instance.materialCountChange(materialCount);
                     buildingTower(tile, false);
                     foreach(GameObject sample in sampleBuildings){
                         sample.SetActive(false);
                     }
                     isBuildingMode = false;
                     isBuildingSample = false;
+                    GameManager.Instance.activeCount--;
+                    UIManager.Instance.moveCountChange(GameManager.Instance.activeCount);
                     checkAround();
                 }
             }
         }
     }
+    private void collect(RaycastHit hitInfo){
+        if(GameManager.Instance.activeCount == 0){return;}
+        if (hitInfo.transform.tag == "Material"){
+            Tile tile = hitInfo.transform.gameObject.GetComponent<Tile>();
+            if (tile.index == playerIndex + 5 || tile.index == playerIndex - 5 || tile.index == playerIndex + 1 || tile.index == playerIndex - 1){
+                tile.resetTilePrefab(TileState.normal);
+                materialCount++;
+                UIManager.Instance.materialCountChange(materialCount);
+                GameManager.Instance.activeCount--;
+                UIManager.Instance.moveCountChange(GameManager.Instance.activeCount);
+                checkAround();
+            }else {
+                Debug.Log(tile.index);
+            }
+        }
+    }
 
     private void move(RaycastHit hitInfo){
+        if(GameManager.Instance.activeCount == 0){return;}
         switch (hitInfo.transform.name){
                     case "X1":
                         playerIndex += 5; // down
@@ -70,6 +100,8 @@ public class Player : SingletonMonoBehaviour<Player>
                 if (hitInfo.transform.tag == "PracticableArea"){
                     var pos = hitInfo.transform.position;
                     gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
+                    GameManager.Instance.activeCount--;
+                    UIManager.Instance.moveCountChange(GameManager.Instance.activeCount);
                     checkAround();
                 }
     }
@@ -110,12 +142,19 @@ public class Player : SingletonMonoBehaviour<Player>
             switch (tile.state){
                 case TileState.normal:
                     i.SetActive(true);
+                    i.GetComponent<MeshRenderer>().material = normalMaterial;
                     if (isBuildingMode){
+                        if(materialCount < 2){
+                            i.GetComponent<MeshRenderer>().material.color = Color.red;
+                        }else{
+                            i.GetComponent<MeshRenderer>().material = normalMaterial;
+                        }
                         buildingTower(tile, true);
                     }
                     break;
                 case TileState.material:
-                    i.SetActive(false);
+                    i.SetActive(true);
+                    i.GetComponent<MeshRenderer>().material.color = Color.red;
                     break;
                 case TileState.building:
                     i.SetActive(false);

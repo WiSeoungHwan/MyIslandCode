@@ -30,6 +30,14 @@ public class Tile: MonoBehaviour{
 		}
 	}
 
+	public void resetTilePrefab(TileState state){
+		this.state = state;
+		GameObject go = gameObject.transform.GetChild(0).gameObject; 
+		Destroy(go);
+		setTilePrefab();
+	}
+	
+
 	private void loadPrefabs(string forderName){
 		if (Resources.LoadAll("Prefab/Tile/"+forderName) == null){Debug.Log("Err: "+forderName+"is null");return;}
 		Object[] prefabArr = Resources.LoadAll("Prefab/Tile/"+forderName);
@@ -37,14 +45,18 @@ public class Tile: MonoBehaviour{
 		GameObject prefabObject = Instantiate(prefabArr[Random.Range(0,prefabArr.Length)],gameObject.transform.position,Quaternion.identity) as GameObject;
 		prefabObject.transform.parent = gameObject.transform;
 		gameObject.tag = forderName;
-		if (forderName == "Normal"){
-			gameObject.AddComponent<BoxCollider>();
-		}else{
-			CapsuleCollider capsulecolider = gameObject.AddComponent<CapsuleCollider>();
-			capsulecolider.height = 2;
-			capsulecolider.center = new Vector3(0,0.5f,0);
+		BoxCollider colider;
+		if (gameObject.GetComponent<BoxCollider>() == null) {
+			colider = gameObject.AddComponent<BoxCollider>();
 		}
-		Debug.Log(prefabObject.tag);
+		colider = gameObject.GetComponent<BoxCollider>();
+		if (forderName == "Material"){
+			colider.size = new Vector3(1,1.5f,1);
+			colider.center = new Vector3(0,0.5f,0);
+		}else{
+			colider.size = Vector3.one;
+			colider.center = Vector3.zero;
+		}
 		prefabObject.SetActive(true);
 	}
 }
