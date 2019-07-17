@@ -7,7 +7,7 @@ using Timers;
 public class GameManager : SingletonMonoBehaviour<GameManager> {
 	[SerializeField]
 	Ground myGround;
-	public int turn = 0;
+	public int turn = 1;
 	public bool gameTrigger = false;
 	public int timerCount;
 	public int activeCount;
@@ -15,11 +15,18 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
 	int m_activeCount;
 	// Use this for initialization
 	protected override void OnAwake(){
-		UIManager.Instance.timerCount = timerCount;
+		
 		m_activeCount = activeCount;
+	}
+	protected override void OnStart(){
+		UIManager.Instance.timerCount = timerCount;
 	}
 	public void timerSetting(){
 		gameTrigger = true;
+		foreach( var towers in  TowerManager.Instance.towers){
+			towers.shootOnce();
+			towers.target = TowerManager.Instance.enemyGround.tileArr[Random.Range(0,24)].transform;
+		}
 		activeCount = m_activeCount;
 		UIManager.Instance.moveCountChange(m_activeCount);
 		UIManager.Instance.timerCount = timerCount;

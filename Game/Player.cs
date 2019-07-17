@@ -20,9 +20,11 @@ public class Player : SingletonMonoBehaviour<Player>
     public int playerIndex = 0;
 
     public List<GameObject> sampleBuildings = new List<GameObject>(); 
-    int materialCount = 0;
+    private int materialCount = 0;
+    private Animator animator;
     protected override void OnStart(){
-        
+        animator = transform.Find("Body").Find("Astronaut").GetComponent<Animator>();
+
         checkAround();
         playerDel = new PlayerDelegate(checkAround);
     }
@@ -36,9 +38,10 @@ public class Player : SingletonMonoBehaviour<Player>
             // get hitInfo
             RaycastHit hitInfo;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
+            
             if (Physics.Raycast(ray, out hitInfo))
             {
+                
                 move(hitInfo);
                 if (!isBuildingMode){
                     collect(hitInfo);
@@ -69,6 +72,7 @@ public class Player : SingletonMonoBehaviour<Player>
         if (hitInfo.transform.tag == "Material"){
             Tile tile = hitInfo.transform.gameObject.GetComponent<Tile>();
             if (tile.index == playerIndex + 5 || tile.index == playerIndex - 5 || tile.index == playerIndex + 1 || tile.index == playerIndex - 1){
+                animator.SetInteger("AnimationPar", 0);
                 tile.resetTilePrefab(TileState.normal);
                 materialCount++;
                 UIManager.Instance.materialCountChange(materialCount);
@@ -82,24 +86,37 @@ public class Player : SingletonMonoBehaviour<Player>
     }
 
     private void move(RaycastHit hitInfo){
-        if(GameManager.Instance.activeCount == 0){return;}
+        if(GameManager.Instance.activeCount == 0){
+            animator.SetInteger("AnimationPar", 0);
+            return;
+        }
+        float rotateY = 90;
         switch (hitInfo.transform.name){
                     case "X1":
+                        rotateY = 90;
                         playerIndex += 5; // down
                         break;
                     case "X-1":
+                        rotateY = -90;
                         playerIndex -= 5; // up 
                         break;
                     case "Z1":
+                        rotateY = 0;
                         playerIndex += 1; // left
                         break;
                     case "Z-1":
+                        rotateY = 180;
                         playerIndex -= 1; // right
                         break;
                 }
                 if (hitInfo.transform.tag == "PracticableArea"){
+                    animator.SetInteger("AnimationPar", 1);
+                    transform.Find("Body").transform.rotation = Quaternion.Euler(new Vector3(0,rotateY,0));
                     var pos = hitInfo.transform.position;
                     gameObject.transform.position = new Vector3(pos.x,transform.position.y,pos.z);
+                    if (GameManager.Instance.activeCount == 1){
+                        animator.SetInteger("AnimationPar", 0);
+                    }
                     GameManager.Instance.activeCount--;
                     UIManager.Instance.moveCountChange(GameManager.Instance.activeCount);
                     checkAround();
@@ -201,6 +218,13 @@ public class Player : SingletonMonoBehaviour<Player>
         Vector3 pos = new Vector3(tile.transform.position.x,0.0f,tile.transform.position.z);
         GameObject tower = Instantiate(Resources.Load("Prefab/Tile/Building/"+buildingName),pos, Quaternion.identity) as GameObject;
         tower.transform.SetParent(tile.transform);
+        if (!isSample){
+            var towerScript = tower.GetComponent<Tower>();
+            Debug.Log(towerScript);
+            TowerManager.Instance.towers.Add(towerScript);
+            towerScript.target = TowerManager.Instance.enemyGround.tileArr[Random.Range(0,24)].transform;
+        }
+        
         tower.tag = isSample ? "SampleBuilding" : "Building";
         tile.state = isSample ? TileState.normal : TileState.building;
         if (isSample) {sampleBuildings.Add(tower);}
