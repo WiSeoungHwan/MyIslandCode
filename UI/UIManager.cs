@@ -26,6 +26,11 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 
 	[SerializeField]
 	AiryUIAnimationManager airyUIAnimationManager;
+
+	[SerializeField]
+	GameObject winPanel;
+	[SerializeField]
+	GameObject goblin;
 	public int timerCount;
 
 	// MARK: - Mono LifeCycle
@@ -88,7 +93,17 @@ public class UIManager : SingletonMonoBehaviour<UIManager> {
 		if (Player.Instance.isBuildingSample) {return;}
 		Player.Instance.isBuildingMode = true;
 		Player.Instance.playerDel();
-		Player.Instance.isBuildingSample = true; 
-		
+		Player.Instance.isBuildingSample = true;
+	}
+
+	public void gameFinish(){
+		GameManager.Instance.gameTrigger = false;
+		TimersManager.SetPaused(timeCount,true);
+		winPanel.SetActive(true);
+		goblin.SetActive(false);
+	}
+
+	public void reloadScene(){
+		SceneManager.LoadScene(1);
 	}
 }
